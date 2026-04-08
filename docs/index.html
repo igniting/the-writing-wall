@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Writing Wall</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 40px 0;
+        }
+        .subtitle {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>The Writing Wall</h1>
+    <p class="subtitle">Beijing, Spring 2026</p>
+
+    <p>Language models learned to read before they learned to write.</p>
+
+    <p>Not literally. But functionally, that’s where we are.</p>
+
+    <p>Today’s frontier models can ingest absurd amounts of text — hundreds of thousands, even millions of tokens — and reason over it. But ask them to produce something of comparable length, and they struggle. Not because they immediately fail, but because something subtle breaks: coherence, depth, structure, intent.</p>
+
+    <p>There is a wall. And it shows up much earlier than it should.</p>
+
+    <p>For a long time, we thought this was a systems problem. And part of it is. Prefill is parallel. Decode is sequential. KV cache grows. Bandwidth dominates. Generating 100k tokens is fundamentally expensive.</p>
+
+    <p>But that’s not the most interesting part.</p>
+
+    <p>The real story is simpler — and more surprising.</p>
+
+    <hr>
+
+    <h2>The wall wasn’t where we thought it was</h2>
+
+    <p>In 2024, people noticed something strange.</p>
+
+    <p>No matter how you prompted them, models would stop writing around ~2,000 words. Ask for 10,000 — you’d get ~1,800. Ask for 20,000 — still ~1,900. It looked like a hard limit baked into the architecture.</p>
+
+    <p>It wasn’t.</p>
+
+    <p>LongWriter showed that the ceiling came from training data. Models were not unable to write longer — they had simply never seen long outputs during alignment. When researchers capped SFT data at different lengths, the model’s output length scaled almost linearly with that cap.</p>
+
+    <p>The “wall” was learned behavior.</p>
+
+    <p>That realization should have been humbling. For months, people searched for deep architectural explanations. The answer was sitting in the dataset.</p>
+
+    <p>But fixing the length didn’t fix the problem.</p>
+
+    <hr>
+
+    <h2>Long is easy. Non-hollow is hard.</h2>
+
+    <p>Once you know the issue is data, the obvious move is to generate long outputs synthetically.</p>
+
+    <p>That works — sort of.</p>
+
+    <p>You can get models to write 10k, 20k, even 30k tokens. The outputs look structured. They follow outlines. They hit the right sections.</p>
+
+    <p>And yet, something feels off.</p>
+
+    <p>Every section looks the same. Transitions are mechanical. The writing has the shape of coherence, not the substance of it. It reads like something assembled, not something thought through.</p>
+
+    <p>This is the failure mode of most long-output pipelines today.</p>
+
+    <p>They optimize for structure, not sustained reasoning.</p>
+
+    <p>And that distinction turns out to matter more than anything else.</p>
+
+    <hr>
+
+    <h2>The real divide isn’t length. It’s verifiability.</h2>
+
+    <p>Here is the key observation:</p>
+
+    <p>Some long outputs already work.</p>
+
+    <p>Reasoning models routinely produce tens of thousands of tokens — long chains of thought, proofs, code traces — and they hold together surprisingly well. Not perfectly, but much better than long-form writing.</p>
+
+    <p>Why?</p>
+
+    <p>Because they have something creative writing does not:</p>
+
+    <p>a verifier.</p>
+
+    <p>In math, the answer is either correct or not. In code, tests pass or fail. The reward signal is grounded. It does not degrade as the output gets longer.</p>
+
+    <p>That changes everything.</p>
+
+    <p>Now compare that to writing a 10,000-word essay. There is no oracle. You rely on reward models trained on human preference — and those models get worse as the input grows. They miss errors in the middle. They fail to capture global coherence. They reward style over substance.</p>
+
+    <p>So the long-output problem splits cleanly into two worlds:</p>
+    <ul>
+        <li>Verifiable long output — math, code, structured reasoning</li>
+        <li>Non-verifiable long output — creative writing, open-ended prose</li>
+    </ul>
+
+    <p>One is progressing rapidly. The other is stuck.</p>
+
+    <hr>
+
+    <h2>The category hiding in plain sight</h2>
+
+    <p>There is a third category that doesn’t quite fit either bucket.</p>
+
+    <p>Translation.<br>
+    Code migration.<br>
+    Regulatory writing.<br>
+    Citation-heavy documents.</p>
+
+    <p>These look like “writing tasks.” They produce long prose. But they are not purely subjective.</p>
+
+    <p>You can check whether a translation preserves entities and numbers.<br>
+    You can check whether migrated code passes tests.<br>
+    You can check whether citations actually support claims.</p>
+
+    <p>These are not perfect verifiers. But they are strong enough.</p>
+
+    <p>Call this class faithful-preservation tasks.</p>
+
+    <p>And this is where things get interesting.</p>
+
+    <p>Because once you have any programmatic signal that survives length, reinforcement learning starts to work again.</p>
+
+    <p>Recent systems like QwenLong-L1 and MemAgent are already exploiting this idea from adjacent directions: combining rule-based checks with learned rewards, training models to operate over long contexts with partial verification.</p>
+
+    <p>The pattern is emerging:</p>
+
+    <p>If you can check it, you can scale it.</p>
+
+    <hr>
+
+    <h2>The production workaround is not the solution</h2>
+
+    <p>In the meantime, production systems have converged on a different answer.</p>
+
+    <p>Don’t generate long outputs.</p>
+
+    <p>Generate many short ones.</p>
+
+    <p>Plan → write → edit → verify.<br>
+    Break the task into chunks.<br>
+    Store intermediate state in files.<br>
+    Use agents. Use tools. Use loops.</p>
+
+    <p>This works extremely well — which is why everyone ships it.</p>
+
+    <p>But it’s also a workaround.</p>
+
+    <p>The model is not actually getting better at long-form generation. The system is compensating for its weaknesses. Coherence is enforced by scaffolding, not learned behavior.</p>
+
+    <p>And you can see the cracks:</p>
+    <ul>
+        <li>Sections drift in tone</li>
+        <li>Parallel edits conflict</li>
+        <li>Global consistency is fragile</li>
+        <li>Costs explode with scale</li>
+    </ul>
+
+    <p>Most importantly, this approach only works when the task decomposes cleanly.</p>
+
+    <p>Which brings us back to the same fault line:</p>
+
+    <p>If correctness can be checked locally, chunking works.<br>
+    If coherence must be global, it breaks.</p>
+
+    <hr>
+
+    <h2>Where the real opportunity is</h2>
+
+    <p>The most promising direction is not “make models write longer.”</p>
+
+    <p>It is make long outputs checkable.</p>
+
+    <p>That shifts the problem from vague preference optimization to concrete signal design.</p>
+
+    <p>The playbook is straightforward, but underexplored:</p>
+    <ul>
+        <li>Pick a task where fidelity matters more than style</li>
+        <li>Define the strongest programmatic checks you can</li>
+        <li>Train with RL against those checks</li>
+        <li>Scale length gradually</li>
+    </ul>
+
+    <p>Translation with entity preservation.<br>
+    Code migration with test suites.<br>
+    Documents with citation validation.</p>
+
+    <p>These are not toy problems. They are exactly the kinds of things people want to use models for in production.</p>
+
+    <p>And they align perfectly with what RL is actually good at.</p>
+
+    <p>This is also why so much progress is happening in the open-weight ecosystem. Designing custom verifiers, iterating on reward signals, instrumenting failures — these workflows require control over the model.</p>
+
+    <p>Closed APIs are great for consumption. This problem is about construction.</p>
+
+    <hr>
+
+    <h2>What doesn’t change</h2>
+
+    <p>Even if all of this works, some constraints remain stubborn.</p>
+
+    <p>Decode is still sequential.<br>
+    KV cache still grows.<br>
+    Bandwidth still matters.</p>
+
+    <p>You can push the wall back. You cannot remove it.</p>
+
+    <p>And some problems remain fundamentally hard:</p>
+    <ul>
+        <li>Neural text degeneration (the “repeat curse”)</li>
+        <li>Context rot over long inputs</li>
+        <li>Weak reward models for long-form prose</li>
+        <li>Evaluation that doesn’t scale</li>
+    </ul>
+
+    <p>These are not solved by better prompting or more data.</p>
+
+    <hr>
+
+    <h2>The writing wall</h2>
+</body>
+</html>
