@@ -1,7 +1,5 @@
 The Writing Wall
 
-Beijing, Spring 2026
-
 Language models learned to read before they learned to write.
 
 Not literally. But functionally, that’s where we are.
