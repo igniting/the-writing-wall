@@ -24,10 +24,6 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Convert Markdown to HTML
-        run: |
-          pandoc blog.md -o docs/index.html --standalone --css=https://cdn.jsdelivr.net/npm/water.css@2/out/water.css
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
